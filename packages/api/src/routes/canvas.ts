@@ -143,7 +143,7 @@ const canvas: FastifyPluginAsync = async (fastify): Promise<void> => {
         // timestamp: currentTimestamp,
         x,
         y,
-        color,
+        c: color,
       })
       // Create and return `draw` object
       await drawModel.create(draw.toDbVTO())

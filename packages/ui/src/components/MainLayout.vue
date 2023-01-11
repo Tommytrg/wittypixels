@@ -1,46 +1,77 @@
 <template>
-  <div class="background" :class="THEME_COLORS[player?.color]">
-    <WitnetStrip class="witnet-logo-strip" />
-    <div v-if="isBackground" class="main-background" />
-    <div class="layout" :class="{ padding, 'max-height': maxHeight }">
-      <slot />
+  <div class="background">
+    <div class="witnet-logo-strip">
+      <slot name="top" />
+      <WitnetMarquee />
+      <AppHeader :hideNavBar="hideNavBar" />
+    </div>
+    <div ref="playGroundRef" class="layout">
+      <slot name="main" />
+      <div class="sticky-bottom">
+        <div class="action-container">
+          <slot name="bottom" />
+        </div>
+        <slot name="bottom-2" />
+      </div>
     </div>
   </div>
 </template>
 <script>
-import { defineComponent } from 'vue-demi'
 import { useStore } from '@/stores/player'
-import wittyCorn from '@/assets/egg.svg?raw'
-import { THEME_COLORS } from '../constants'
-export default defineComponent({
+import { ref } from 'vue'
+import { onClickOutside } from '@vueuse/core'
+export default {
   props: {
-    isBackground: {
-      type: Boolean,
-      default: false,
-    },
-    maxHeight: {
+    hideNavBar: {
       type: Boolean,
       default: false,
     },
     padding: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   setup() {
     const player = useStore()
+    const playGroundRef = ref(null)
+    onClickOutside(playGroundRef, () => {
+      player.clearPixelToPaint()
+      player.togglePalettePanel(false)
+    })
     return {
       player,
-      wittyCorn,
-      THEME_COLORS,
+      playGroundRef,
     }
   },
-})
+}
 </script>
 <style scoped lang="scss">
+.sticky-bottom {
+  width: 100%;
+  text-align: center;
+  position: fixed;
+  max-width: 700px;
+  bottom: 0px;
+  display: grid;
+  grid-template-rows: max-content max-content;
+  justify-items: center;
+  .action-container {
+    padding: 16px;
+    width: 100%;
+  }
+}
+.cover-bottom {
+  width: 100%;
+  text-align: center;
+  bottom: 0px;
+  display: grid;
+  grid-template-rows: max-content max-content;
+  justify-items: center;
+}
 .background {
-  height: 100%;
-  position: relative;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: max-content 1fr;
   left: 0;
   right: 0;
   z-index: 3;
@@ -49,35 +80,20 @@ export default defineComponent({
 }
 .witnet-logo-strip {
   position: relative;
+  background-color: $white;
   z-index: 12;
 }
-.main-background {
-  position: fixed;
-  height: 100vh;
-  width: 100vw;
-  bottom: 0px;
-  z-index: 4;
-  background-position: bottom center;
-  background-size: cover;
-}
+
 .layout {
-  position: relative;
   z-index: 7;
   width: 100%;
   max-width: 700px;
-  min-height: 98vh;
   margin-top: 32px;
   margin: 0 auto;
-  display: grid;
-  align-items: flex-start;
-  grid-template-rows: max-content;
-
-  &.padding {
-    padding: 16px;
-    margin-top: 4vh;
-  }
-  &.max-height {
-    min-height: 80vh;
-  }
+  overflow-y: auto;
+  grid-template-rows: 1fr;
+}
+.padding {
+  padding: 8px 16px;
 }
 </style>

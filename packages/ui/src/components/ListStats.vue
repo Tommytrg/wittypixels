@@ -4,19 +4,31 @@
       v-if="gameEntity === 'players' && player.playersGlobalStats"
       class="list"
     >
-      <PlayerGlobalData
-        v-for="(player, index) in player.playersGlobalStats.players"
-        :class="{ even: index % 2 }"
-        :index="index"
+      <!-- TODO: Uncomment when the API supports the player ranking -->
+      <!-- <PlayerGlobalData
+        :border="true"
+        :index="player.creationIndex"
         :key="player.username"
         :name="player.username"
+        :color="player.color"
+        :position="0"
+        :score="player.score"
+      /> -->
+      <PlayerGlobalData
+        v-for="(player, index) in player.playersGlobalStats"
+        :class="{ even: index % 2 }"
+        :index="player.creationIndex"
+        :key="player.username"
+        :name="player.username"
+        :color="player.color"
         :position="player.position + 1"
         :score="player.score"
       />
-      <CustomPagination
-        v-if="numberPages > 1"
-        :limit="numberPages"
-        @update-page="updateCurrentPage"
+      <CustomInfiniteLoading
+        :getItems="player.getGlobalStats"
+        :total="totalGlobalItems"
+        :list="player.playersGlobalStats || []"
+        @result="pushGlobalItems"
       />
     </div>
   </div>
@@ -24,7 +36,7 @@
 
 <script>
 import { useStore } from '@/stores/player'
-import { computed, onBeforeMount, ref, watch } from 'vue'
+import { ref } from 'vue'
 export default {
   props: {
     gameEntity: {
@@ -38,49 +50,24 @@ export default {
   },
   setup(props) {
     const player = useStore()
-    // paginate data
-    const currentPage = ref(0)
-    const limit = ref(25)
-    const numberPages = computed(() => {
-      return Math.ceil((player.playersGlobalStats?.total || 0) / limit.value)
-    })
-    const offset = computed(() => {
-      return limit.value * currentPage.value
-    })
-    onBeforeMount(async () => {
-      await player.getGlobalStats()
-    })
-    watch(currentPage, async () => {
-      await player.getGlobalStats(offset.value, limit.value)
-    })
-    function updateCurrentPage(page) {
-      currentPage.value = page
+    const totalGlobalItems = ref(0)
+    const pushGlobalItems = items => {
+      if (items) {
+        player.playersGlobalStats.push(...items.result)
+        totalGlobalItems.value = items.total
+      }
     }
-    // filter list by attribute
-    function filterListByLabel({ list, label }) {
-      const filter = label === 'overall' ? 'score' : label
-      return list.sort((a, b) => {
-        return b[filter] - a[filter] || a.creationIndex - b.creationIndex
-      })
-    }
-    const sortedPlayersData = computed(() =>
-      filterListByLabel({
-        list: player.playerGlobalStats || [],
-        label: props.entityAttribute,
-      })
-    )
     return {
-      sortedPlayersData,
       player,
-      updateCurrentPage,
-      numberPages,
+      totalGlobalItems,
+      pushGlobalItems,
     }
   },
 }
 </script>
 <style lang="scss" scoped>
 .even {
-  background: var(--primary-color-opacity-2);
+  background: $transparent-lightgrey;
   border-radius: 4px;
 }
 .list-container {

@@ -73,17 +73,17 @@ export class Canvas {
   draw(draw: Omit<DbDrawVTO, 'ends' | 'timestamp'>): Draw {
     const now = Date.now()
 
-    const { x, y, owner, color } = draw
+    const { x, y, owner, c } = draw
 
     this.pixels[x][y] = {
       ...this.pixels[x][y],
       t: now,
-      c: color,
+      c: c,
       o: owner,
     }
 
     return new Draw({
-      color: draw.color,
+      c,
       ends: now + INTERACTION_DURATION_MILLIS,
       x,
       y,

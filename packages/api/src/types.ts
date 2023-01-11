@@ -69,7 +69,7 @@ export const DbDrawVTO = Type.Object({
   timestamp: Type.Number(),
   x: Type.Number(),
   y: Type.Number(),
-  color: Type.Enum(Color),
+  c: Type.Enum(Color),
 })
 
 export type DbDrawVTO = Static<typeof DbDrawVTO>
@@ -243,6 +243,7 @@ export type InteractionResult = Static<typeof InteractionParams>
 export const PlayerLeaderboardInfo = Type.Object({
   username: Type.String(),
   score: Type.Integer(),
+  color: Type.Integer(),
   position: Type.Integer(),
   creationIndex: Type.Integer(),
 })

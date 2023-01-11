@@ -8,7 +8,7 @@
 defineProps({
   type: {
     type: String,
-    default: 'default',
+    default: 'primary',
     validator(value) {
       return ['primary', 'secondary', 'disable', 'dark'].includes(value)
     },
@@ -20,24 +20,27 @@ defineProps({
 .btn {
   width: 100%;
   color: $white;
-  padding: 16px 16px;
-  border-radius: 4px;
-  font-family: Roboto;
+  padding: 8px 16px;
+  border-radius: 28px;
   font-weight: bold;
   &.primary {
+    transition: all 0.3s;
     color: $white;
     background: var(--primary-color);
   }
   &.secondary {
+    transition: all 0.3s;
     color: $white;
     background: var(--primary-color);
   }
   &.dark {
+    transition: all 0.3s;
     color: $white;
-    background: var(--primary-color);
+    background: var(--secondary-color);
   }
   &.disable {
-    opacity: 0.6;
+    transition: all 0.3s;
+    background: $grey;
     cursor: no-drop;
   }
 }

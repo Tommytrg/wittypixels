@@ -1,23 +1,15 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useStore } from '@/stores/player'
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-
-import App from '@/App.vue'
+import { useLocalStore } from '@/stores/local'
 
 import Home from '../views/App.vue'
 import MainContent from '../views/MainContent.vue'
 import InitGame from '../views/InitGame.vue'
 import Disclaimer from '../views/GameDisclaimer.vue'
-import Instructions from '../views/GameInstructions.vue'
+import GameSettings from '../views/GameSettings.vue'
 import LeaderBoard from '../views/LeaderBoard.vue'
 import InteractionHistory from '../views/InteractionHistory.vue'
 import ScanId from '../views/ScanId.vue'
-
-export const pinia = createPinia()
-
-const app = createApp(App)
-app.use(pinia)
 
 const routes = [
   {
@@ -25,8 +17,8 @@ const routes = [
     name: 'home',
     component: Home,
     beforeEnter: async (to, from, next) => {
-      const store = useStore()
-      const loginInfo = store.getToken()
+      const localStore = useLocalStore()
+      const loginInfo = localStore.getToken()
       if (loginInfo && loginInfo.token) {
         next({ name: 'main', params: { id: loginInfo.key } })
       } else {
@@ -49,14 +41,15 @@ const routes = [
     path: '/init-game',
     component: InitGame,
     beforeEnter: async (to, from, next) => {
+      const localStore = useLocalStore()
       const store = useStore()
-      const loginInfo = store.getToken()
+      const loginInfo = localStore.getToken()
       const claimedPlayerError =
         store.errors.info &&
         store.errors.info.includes('Player has not been claimed yet')
       const error = store.errors.info
       if (loginInfo && claimedPlayerError) {
-        store.clearTokenInfo()
+        localStore.clearTokenInfo()
       }
       if (loginInfo && loginInfo.token && !error) {
         next({ name: 'main', params: { id: loginInfo.key } })
@@ -74,16 +67,24 @@ const routes = [
     name: 'leaderboard',
     path: '/leaderboard',
     component: LeaderBoard,
+    beforeEnter: () => {
+      const store = useStore()
+      store.getPlayerInfo()
+    },
   },
   {
     name: 'interactionHistory',
     path: '/interactions',
     component: InteractionHistory,
+    beforeEnter: () => {
+      const store = useStore()
+      store.getPlayerInfo()
+    },
   },
   {
-    name: 'instructions',
-    path: '/instructions',
-    component: Instructions,
+    name: 'settings',
+    path: '/settings/:id?',
+    component: GameSettings,
   },
   {
     name: 'import',

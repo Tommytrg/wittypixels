@@ -1,25 +1,24 @@
 <template>
   <div class="nav-container" ref="target">
-    <nav class="navbar" :class="{ open: isMenuVisible }">
+    <nav class="navbar" :class="{ visible: isMenuVisible }">
       <label class="responsive-menu" @click="toggleMenu">
         <a class="target-burger" :class="{ visible: isMenuVisible }">
           <ul class="buns">
             <li class="bun"></li>
+            <li class="bun center"></li>
             <li class="bun"></li>
           </ul>
         </a>
       </label>
       <div class="dropdown">
-        <ul class="tab-container" :class="{ visible: isMenuVisible }">
+        <div class="tab-container" :class="{ visible: isMenuVisible }">
           <router-link class="tab" to="/leaderboard"> Leaderboard </router-link>
           <router-link class="tab" to="/interactions"> History </router-link>
-          <router-link class="tab" to="/instructions">
-            Instructions
-          </router-link>
+          <router-link class="tab" to="/settings">Settings</router-link>
           <div class="tab" @click="openExportModal()" type="dark">
             Get backup
           </div>
-        </ul>
+        </div>
       </div>
     </nav>
   </div>
@@ -27,14 +26,17 @@
 
 <script>
 import { onClickOutside } from '@vueuse/core'
+import { useModalStore } from '@/stores/modal'
 import { ref } from 'vue'
+import { ModalKey } from '@/types'
 export default {
-  setup(props, { emit }) {
+  setup() {
     const target = ref(null)
     const displayBox = ref(false)
     const isMenuVisible = ref(false)
+    const modalStore = useModalStore()
     function openExportModal() {
-      emit('openExportModal')
+      modalStore.openModal(ModalKey.export)
     }
     function closeMenu() {
       isMenuVisible.value = false
@@ -66,8 +68,10 @@ export default {
 
 <style scoped lang="scss">
 .navbar {
-  display: block;
-  top: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 16px;
   left: 8px;
   padding: 0;
   .logo-container {
@@ -96,7 +100,7 @@ export default {
   .responsive-menu {
     display: block;
     position: relative;
-    z-index: 50px;
+    z-index: 50;
     top: 0px;
     left: 0px;
     width: 32px;
@@ -104,16 +108,17 @@ export default {
   .dropdown {
     position: absolute;
     z-index: 50;
-    top: 58px;
+    top: 60px;
+    right: 16px;
   }
 }
 .tab-container {
   background-color: $white;
   border: 2px solid var(--primary-color);
   list-style: none;
-  visibility: hidden;
   text-align: left;
-  border-radius: 4px;
+  visibility: visible;
+  border-radius: 24px;
   margin: 0;
   display: grid;
   opacity: 0;
@@ -142,7 +147,6 @@ export default {
   .tab {
     width: 148px;
     cursor: pointer;
-    display: block;
     align-items: left;
     text-decoration: none;
     padding: 0px 16px;
@@ -179,11 +183,14 @@ export default {
       width: 32px;
       height: 32px;
       li.bun {
-        -webkit-transform: rotate(45deg) translateZ(0);
-        transform: rotate(45deg) translateZ(0);
+        -webkit-transform: rotate(40deg) translateZ(0);
+        transform: rotate(40deg) translateZ(0);
+        &.center {
+          display: none;
+        }
         &:last-child {
-          -webkit-transform: rotate(-45deg) translateZ(0);
-          transform: rotate(-45deg) translateZ(0);
+          -webkit-transform: rotate(-40deg) translateZ(0);
+          transform: rotate(-40deg) translateZ(0);
         }
       }
     }
@@ -202,20 +209,24 @@ export default {
     color: var(--primary-color);
     .bun {
       width: 100%;
-      height: 3px;
+      height: 2.5px;
       background-color: var(--primary-color);
       position: absolute;
       top: 50%;
-      margin-top: -0.75px;
-      -webkit-transform: translateY(-3.75px) translateZ(0);
-      transform: translateY(-3.75px) translateZ(0);
+      margin-top: -8px;
+      -webkit-transform: translateY(-4px) translateZ(0);
+      transform: translateY(-4px) translateZ(0);
       -webkit-transition: -webkit-transform 1s cubic-bezier(0.23, 1, 0.32, 1),
         background-color 1s cubic-bezier(0.23, 1, 0.32, 1);
       transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1),
         background-color 1s cubic-bezier(0.23, 1, 0.32, 1);
+      &.center {
+        -webkit-transform: translateY(4px) translateZ(0);
+        transform: translateY(4px) translateZ(0);
+      }
       &:last-child {
-        -webkit-transform: translateY(3.75px) translateZ(0);
-        transform: translateY(3.75px) translateZ(0);
+        -webkit-transform: translateY(12px) translateZ(0);
+        transform: translateY(12px) translateZ(0);
       }
     }
   }

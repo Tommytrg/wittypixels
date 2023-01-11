@@ -1,87 +1,78 @@
 <template>
   <MainLayout>
-    <div class="container">
-      <SectionHeader title="HISTORY" />
-      <div
-        v-for="(interaction, index) in player.history?.interactions"
-        :key="interaction.timestamp"
-        class="interaction-container"
-        :class="{ even: index % 2 }"
-      >
-        <p class="interaction-label date">
-          {{
-            format(
-              utcToZonedTime(interaction.timestamp, timeZone),
-              'yyyy-MM-dd HH:mm:ss'
-            )
-          }}
-        </p>
-        <p>
-          <span class="highlight">{{ interaction.from }}</span>
-          sent <span class="highlight">{{ interaction.points }}</span> points to
-          <span class="highlight">{{ interaction.to }}</span>
-        </p>
+    <template v-slot:main>
+      <div class="view-container">
+        <SectionHeader title="Interactions history" />
+        <GameInfo v-if="!player.history.length" class="empty-state">
+          <div class="long-info bold">
+            <p class="state-text">No interactions yet.</p>
+            <p>
+              What are you waiting for? Go look for other players and ask them
+              to scan your Qr code now!
+            </p>
+          </div>
+        </GameInfo>
+        <InteractionEntry
+          v-for="(interaction, index) in player.history"
+          :key="interaction.timestamp"
+          :class="{ even: index % 2 }"
+          :color="COLORS[interaction.color]"
+          :points="interaction.quantity"
+          :from="interaction.to == player.username ? interaction.from : null"
+          :to="interaction.from == player.username ? interaction.to : null"
+          :timestamp="interaction.timestamp"
+        />
+        <CustomInfiniteLoading
+          :getItems="player.getInteractionHistory"
+          :list="player.history || []"
+          :total="totalItems"
+          @result="pushItems"
+        />
       </div>
-      <CustomPagination
-        v-if="numberPages > 1"
-        :limit="numberPages"
-        @update-page="updateCurrentPage"
-      />
-    </div>
+    </template>
   </MainLayout>
 </template>
 <script>
 import { useStore } from '@/stores/player'
-import { onMounted, computed, ref, watch } from 'vue'
+import { ref } from 'vue'
 import { format } from 'date-fns'
 import { utcToZonedTime } from 'date-fns-tz'
+import { formatDate } from '@/utils'
+import { COLORS } from '@/constants'
 export default {
   setup() {
     const player = useStore()
     const timeZone = 'America/Denver'
-    onMounted(() => {
-      player.getInteractionHistory()
-    })
-    const currentPage = ref(0)
-    const limit = ref(25)
-    const numberPages = computed(() => {
-      return Math.ceil((player.history?.total || 0) / limit.value)
-    })
-    const offset = computed(() => {
-      return limit.value * currentPage.value
-    })
-    watch(currentPage, async () => {
-      await player.getInteractionHistory(offset.value, limit.value)
-    })
-    function updateCurrentPage(page) {
-      currentPage.value = page
+    const totalItems = ref(0)
+    const pushItems = items => {
+      if (items) {
+        player.history.push(...items.result)
+        totalItems.value = items.total
+      }
     }
     return {
+      COLORS,
       player,
       utcToZonedTime,
       timeZone,
       format,
-      numberPages,
-      updateCurrentPage,
+      pushItems,
+      totalItems,
+      formatDate,
     }
   },
 }
 </script>
 <style lang="scss" scoped>
+.empty-state {
+  margin-top: 16px;
+}
 .even {
-  background: var(--primary-color-opacity-2);
+  background: $transparent-lightgrey;
   border-radius: 4px;
 }
-.container {
+.view-container {
   row-gap: 0px;
-}
-.interaction-container {
-  padding: 16px;
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  grid-template-rows: max-content;
-  column-gap: 24px;
-  text-align: left;
 }
 .interaction-label {
   color: var(--primary-color);
@@ -90,9 +81,5 @@ export default {
 .highlight {
   color: var(--primary-color);
   font-weight: 600;
-}
-.date {
-  width: max-content;
-  font-size: 218x;
 }
 </style>

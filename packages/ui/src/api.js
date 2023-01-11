@@ -27,6 +27,13 @@ export class ApiService {
       .catch(this._handleError)
   }
 
+  _patch({ url, data, params }) {
+    return axios
+      .patch(url, data, params)
+      .then(this._handleResponse)
+      .catch(this._handleError)
+  }
+
   _post({ url, data, params }) {
     return axios
       .post(url, data, params)
@@ -107,6 +114,22 @@ export class ApiService {
     return this._post({
       url: `${this.baseUrl}/mint`,
       data: { address },
+      params: { headers: { authorization: token } },
+    })
+  }
+
+  getCanvas({ checkpoint = 0, token }) {
+    return this._get({
+      url: `${this.baseUrl}/canvas`,
+      data: { checkpoint },
+      params: { headers: { authorization: token } },
+    })
+  }
+
+  drawPixel({ x, y, color, token }) {
+    return this._post({
+      url: `${this.baseUrl}/canvas`,
+      data: { x, y, color },
       params: { headers: { authorization: token } },
     })
   }

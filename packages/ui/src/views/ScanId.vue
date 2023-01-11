@@ -1,25 +1,28 @@
 <template>
-  <MainLayout>
-    <StreamBarcodeReader class="qr-code" @decode="onDecode" />
-    <CustomButton
-      class="btn"
-      color="black"
-      @click="onDecode('/895aa6083cc2dfaf')"
-    >
-      Import player id
-    </CustomButton>
-    <ModalDialog :show="modal.visible.value" v-on:close="modal.hideModal">
-      <ModalClaimConfirmation v-on:claim="register" />
-    </ModalDialog>
+  <MainLayout :hideNavBar="player.username ? false : true">
+    <template v-slot:main>
+      <StreamBarcodeReader class="qr-code" @decode="onDecode" />
+      <CustomButton
+        class="btn"
+        color="black"
+        @click="onDecode('/895aa6083cc2dfaf')"
+      >
+        Import player id
+      </CustomButton>
+      <ModalDialog :show="modal.visible.value" v-on:close="modal.hideModal">
+        <ModalClaimConfirmation v-on:claim="register" />
+      </ModalDialog>
+    </template>
   </MainLayout>
 </template>
 
 <script>
 import { ref } from 'vue'
 import { useStore } from '@/stores/player'
+import { useLocalStore } from '@/stores/local'
 import { StreamBarcodeReader } from 'vue-barcode-reader'
 import { useRouter } from 'vue-router'
-import { useModal } from '../composables/useModal'
+import { useModal } from '@/composables/useModal'
 
 export default {
   components: {
@@ -28,6 +31,7 @@ export default {
   setup() {
     const modal = useModal()
     const player = useStore()
+    const localStore = useLocalStore()
     const playerKey = ref(null)
     const decodedString = ref('')
 
@@ -41,7 +45,7 @@ export default {
     function onDecode(value) {
       if (value) {
         decodedString.value = value
-        if (!player.getToken()) {
+        if (!localStore.getToken()) {
           modal.showModal()
         } else {
           register()
@@ -89,13 +93,8 @@ export default {
   z-index: 8;
   div {
     height: 100vh;
-    video {
-      height: 100vh;
-    }
     .overlay-element {
       display: none;
-    }
-    .overlay-element {
       height: 100vh;
     }
   }

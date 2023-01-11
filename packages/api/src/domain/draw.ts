@@ -7,7 +7,7 @@ export class Draw {
   timestamp: number
   x: number
   y: number
-  color: number
+  c: number
 
   constructor(vto: DbDrawVTO) {
     this.ends = vto.ends
@@ -15,7 +15,7 @@ export class Draw {
     this.timestamp = vto.timestamp
     this.x = vto.x
     this.y = vto.y
-    this.color = vto.color
+    this.c = vto.c
   }
 
   toDbVTO(): DbDrawVTO {
@@ -25,7 +25,7 @@ export class Draw {
       timestamp: this.timestamp,
       x: this.x,
       y: this.y,
-      color: this.color,
+      c: this.c,
     }
   }
 
@@ -36,7 +36,7 @@ export class Draw {
       t: this.timestamp,
       x: this.x,
       y: this.y,
-      c: this.color,
+      c: this.c,
     }
   }
 
