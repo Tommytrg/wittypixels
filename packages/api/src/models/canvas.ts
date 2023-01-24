@@ -24,4 +24,8 @@ export class CanvasModel {
       { [`${location.x}.${location.y}`]: pixel }
     )
   }
+
+  public async get(): Promise<Array<DbSectorVTO>> {
+    return this.repository.get({})
+  }
 }

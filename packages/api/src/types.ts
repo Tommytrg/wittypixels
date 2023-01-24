@@ -16,16 +16,25 @@ const Palette = Type.Object({
   3: Type.Integer(),
   4: Type.Integer(),
   5: Type.Integer(),
+  6: Type.Integer(),
+  7: Type.Integer(),
 })
 
 export enum Color {
-  // TODO: replace with correct colors
   White = 0,
-  Red = 1,
-  Blue = 2,
-  Green = 3,
+  Black = 1,
+  // metaland
+  Red = 2,
+  // camp build
+  Orange = 3,
+  // dao town
   Yellow = 4,
-  Orange = 5,
+  // devtopia
+  Green = 5,
+  // regenlandia
+  Blue = 6,
+  // defi district
+  Purple = 7,
 }
 
 export const PlayerVTO = Type.Object({

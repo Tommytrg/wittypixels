@@ -4,36 +4,27 @@ import {
   CANVAS_SECTOR_SIZE,
   INTERACTION_DURATION_MILLIS,
 } from '../constants'
-import {
-  // DbPlayerVTO,
-  // ExtendedPlayerVTO,
-  // PlayerLeaderboardInfo,
-  Color,
-  // Palette,
-  CanvasVTO,
-  DbDrawVTO,
-  DbSectorVTO,
-} from '../types'
+import { Color, CanvasVTO, DbDrawVTO, DbSectorVTO, DbPixelVTO } from '../types'
 import { Draw } from './draw'
 
-export class Canvas {
-  pixels: Array<
-    Array<{
-      // we are using only the first letter to reduce the response size
-      // color
-      c: number
-      // owner
-      o: string
-      // coord x
-      x: number
-      // coord y
-      y: number
-    }>
-  >
+type Pixel = {
+  // we are using only the first letter to reduce the response size
+  // color
+  c: number
+  // owner
+  o: string
+  // coord x
+  x: number
+  // coord y
+  y: number
+}
 
-  constructor(vto?: CanvasVTO) {
+export class Canvas {
+  pixels: Array<Array<Pixel>>
+
+  constructor(vto?: Array<DbSectorVTO>) {
     if (vto) {
-      this.pixels = vto.pixels
+      this.pixels = this.fromDbSectorVTOs(vto)
     } else {
       this.pixels = new Array(CANVAS_MAX_X).fill(null).map((_row, xCoord) => {
         return new Array(CANVAS_MAX_Y).fill(null).map((_col, yCoord) => {
@@ -46,6 +37,35 @@ export class Canvas {
         })
       })
     }
+  }
+
+  private fromDbSectorVTOs(
+    sectors: Array<DbSectorVTO>
+  ): Array<Array<{ c: number; o: string; x: number; y: number }>> {
+    const pixels = new Array(CANVAS_MAX_X).fill(null).map(x => {
+      return new Array(CANVAS_MAX_Y).fill(null).map(y => ({
+        o: '',
+        c: Color.White,
+        x,
+        y,
+      }))
+    })
+
+    sectors.forEach((sector: DbSectorVTO) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { name, ...rowMap } = sector
+      const rows: Array<Omit<DbSectorVTO, 'name'>> = Object.values(rowMap)
+      rows.forEach(row => {
+        row.forEach((pixel: DbPixelVTO) => {
+          if (!pixels[pixel.x]) {
+            pixels
+          }
+          pixels[pixel.x][pixel.y] = pixel
+        })
+      })
+    })
+
+    return pixels
   }
 
   draw(draw: Omit<DbDrawVTO, 'ends' | 'timestamp'>): Draw {
@@ -101,51 +121,8 @@ export class Canvas {
       }
     }
 
-    // return new Array(totalSectors)
-    //   .fill(null)
-    //   .map((_, sectorIndex) => {
-    //     const x = sectorIndex % CANVAS_MAX_X
-    //     const y = Math.floor(sectorIndex / CANVAS_MAX_X)
-
-    //     return sectors[`${x}-${y}`]
-    //   })
-
     return Object.values(sectors)
   }
-
-  // toDbVTO(): DbCanvasVTO {
-  //   const sectorSize = 50
-  //   const MAX_X = 600
-  //   const MAX_Y = 700
-  //   const sectorsPerRow = getSectorsPerRow(MAX_X, sectorSize)
-  //   const sectorsPerColumn = getSectorsPerRow(MAX_Y, sectorSize)
-  //   const totalSectors = sectorsPerRow * sectorsPerColumn
-  //   const sectors = new Array(totalSectors).fill(null).map((_, sectorIndex) => {
-  //     return new Array(sectorSize).fill(null).reduce(
-  //       (acc, item, rowIndex) => {
-  //         const x = sectorsPerRow % sectorIndex
-  //         return {
-  //           ...acc,
-  //           [rowIndex]: new Array(sectorSize).fill(null).map((_, colIndex) => {
-  //             const y = sectorsPerColumn % colIndex
-  //             return {
-  //               color: Color.White,
-  //               owner: '',
-  //               x,
-  //               y,
-  //             } as Pixel
-  //           }),
-  //         }
-  //       },
-  //       {
-  //         name: sectorIndex,
-  //       }
-  //     )
-  //   })
-  //   return Promise.all(
-  //     sectors.map(async sector => await this.repository.create(sector))
-  //   )
-  // }
 }
 
 export function getSectorsPerRow(maxX: number, sectorSize: number) {
