@@ -10,17 +10,34 @@ import {
   JwtVerifyPayload,
   DrawParams,
   DrawResult,
+  CanvasVTO,
 } from '../types'
-import {
-  calculateRemainingCooldown,
-  isTimeToMint,
-  printRemainingMillis,
-} from '../utils'
+import { isTimeToMint } from '../utils'
 
 const canvas: FastifyPluginAsync = async (fastify): Promise<void> => {
   if (!fastify.mongo.db) throw Error('mongo db not found')
 
-  const { canvasModel, drawModel, playerModel } = fastify
+  const { drawModel, playerModel, canvas } = fastify
+
+  // const { canvasModel, drawModel, playerModel, canvas } = fastify
+
+  fastify.get<{
+    Params: Record<string, never>
+    Reply: CanvasVTO | Error
+  }>('/canvas', {
+    schema: {
+      params: {},
+      response: {
+        200: CanvasVTO,
+      },
+    },
+    handler: async (
+      _request: FastifyRequest<{ Params: Record<string, never> }>,
+      reply
+    ) => {
+      return reply.status(200).send(canvas.toDbVTO())
+    },
+  })
 
   fastify.patch<{ Body: DrawParams; Reply: DrawResult | Error }>('/canvas', {
     schema: {
@@ -85,9 +102,9 @@ const canvas: FastifyPluginAsync = async (fastify): Promise<void> => {
       })
 
       // Create and return `draw` object
-      const storedDraw = await drawModel.create(draw.toDbVTO())
+      await drawModel.create(draw.toDbVTO())
 
-      canvasModel.draw(draw)
+      // canvasModel.draw(draw)
 
       return reply.status(200).send(draw)
     },

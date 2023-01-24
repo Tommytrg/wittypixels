@@ -4,12 +4,12 @@ import {
   INTERACTION_DURATION_MILLIS,
 } from '../constants'
 import {
-  DbPlayerVTO,
-  ExtendedPlayerVTO,
-  PlayerLeaderboardInfo,
+  // DbPlayerVTO,
+  // ExtendedPlayerVTO,
+  // PlayerLeaderboardInfo,
   Color,
-  Palette,
-  DbCanvasVTO,
+  // Palette,
+  CanvasVTO,
   DbDrawVTO,
 } from '../types'
 import { Draw } from './draw'
@@ -19,12 +19,12 @@ export class Canvas {
     Array<{
       x: number
       y: number
-      color: number
-      owner: string
+      c: number
+      o: string
     }>
   >
 
-  constructor(vto?: DbCanvasVTO) {
+  constructor(vto?: CanvasVTO) {
     if (vto) {
       this.pixels = vto.pixels
     } else {
@@ -33,9 +33,9 @@ export class Canvas {
           return {
             x: xCoord,
             y: yCoord,
-            color: Color.White,
+            c: Color.White,
             // TODO: Allow null
-            owner: '',
+            o: '',
           }
         })
       })
@@ -49,8 +49,8 @@ export class Canvas {
 
     this.pixels[x][y] = {
       ...this.pixels[x][y],
-      color,
-      owner: player,
+      c: color,
+      o: player,
     }
 
     return new Draw({
@@ -63,7 +63,7 @@ export class Canvas {
     })
   }
 
-  toDbVTO(): DbCanvasVTO {
+  toDbVTO(): CanvasVTO {
     return {
       pixels: this.pixels,
     }

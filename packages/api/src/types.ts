@@ -104,9 +104,14 @@ export type ExtendedPlayerVTO = Static<typeof ExtendedPlayerVTO>
 export const PixelVTO = Type.Object({
   x: Type.Number(),
   y: Type.Number(),
-  color: Type.Enum(Color),
-  owner: Type.String(),
+  c: Type.Enum(Color),
+  o: Type.String(),
 })
+
+export const CanvasVTO = Type.Object({
+  pixels: Type.Array(Type.Array(PixelVTO)),
+})
+export type CanvasVTO = Static<typeof CanvasVTO>
 
 // export const DbCanvasVTO = Type.Object({
 //   pixels: Type.Array(Type.Array(PixelVTO)),
