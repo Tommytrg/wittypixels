@@ -111,6 +111,11 @@ export const CANVAS_CACHE_MAX_SIZE = process.env.CANVAS_CACHE_MAX_SIZE
   ? parseInt(process.env.CANVAS_CACHE_MAX_SIZE)
   : 100000
 
+// Pixel locked
+export const PIXEL_LOCKED_DURATION_MS = process.env.PIXEL_LOCKED_DURATION_MS
+  ? parseInt(process.env.PIXEL_LOCKED_DURATION_MS)
+  : 10 * 1000
+
 export default {
   PLAYER_KEY_LENGTH_BYTES,
   PLAYER_MINT_TIMESTAMP,

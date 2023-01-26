@@ -99,16 +99,28 @@ export class PlayerModel {
   }
 
   public async addColor(
-    key: string,
+    username: string,
     color: Color,
     amount: number
   ): Promise<Player | null> {
     await this.collection.updateOne(
-      { key },
+      { username },
       { $inc: { [`palette.${color}`]: amount } }
     )
 
-    return await this.get(key)
+    return await this.get(username)
+  }
+
+  public async reduceColor(
+    username: string,
+    color: Color
+  ): Promise<Player | null> {
+    await this.collection.updateOne(
+      { username },
+      { $inc: { [`palette.${color}`]: -1 } }
+    )
+
+    return await this.get(username)
   }
 
   public computeColors(
