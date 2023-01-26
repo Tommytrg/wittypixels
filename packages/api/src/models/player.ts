@@ -48,7 +48,6 @@ export class PlayerModel {
       score,
       creationIndex: index,
       color,
-      // TODO: define empty palette
       palette: Player.getEmptyPalette(),
     })
   }
