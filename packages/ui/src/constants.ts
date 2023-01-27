@@ -34,14 +34,16 @@ export const BASE_URL =
 export const ATTRIBUTES = {}
 
 export const COLORS: Colors = {
-  0: 'red',
-  1: 'orange',
-  2: 'yellow',
-  3: 'green',
-  4: 'blue',
-  5: '#8C52FF',
-  6: '#8C52FF',
+  0: 'white',
+  1: 'black',
+  2: 'red',
+  3: 'orange',
+  4: 'yellow',
+  5: 'green',
+  6: 'blue',
+  7: '#8C52FF',
 }
+
 export const TIMEZONE = 'America/Denver'
 export const PIXEL_SIZE = 16
 export const CANVAS_WIDTH = 1000

@@ -11,6 +11,22 @@ export type Pixel = {
   strokeWidth: number | null
   stroke: string
 }
+
+export type ApiPixel = {
+  owner: string
+  x: number
+  y: number
+  color: number
+}
+
+export type BasicPixel = {
+  author: string | null
+  timestamp: number | null
+  x: number
+  y: number
+  fill: string
+}
+
 export type GeneratePixelArgs = {
   x: number
   y: number
@@ -73,6 +89,11 @@ export enum InteractionType {
   interactionIn = 'interactionIn',
 }
 export type InteractionInfo = {
+  from: string
+  to: string
+  quantity: number
+  color: Color
+  timestamp: number
   ends: number
 }
 export enum GameOverErrorKey {
@@ -86,4 +107,46 @@ export interface Errors {
 }
 export interface GameOverErrors {
   [key: string]: string | null
+}
+
+export type Player = {
+  player: {
+    key: string
+    username: string
+    score: number
+    nft: Array<string>
+    creationIndex: number
+    color: Color
+    palette: Palette
+  }
+  lastInteractionIn?: InteractionInfo
+  lastInteractionOut?: InteractionInfo
+}
+
+export enum Color {
+  White = 0,
+  Black = 1,
+  // metaland
+  Red = 2,
+  // camp build
+  Orange = 3,
+  // dao town
+  Yellow = 4,
+  // devtopia
+  Green = 5,
+  // regenlandia
+  Blue = 6,
+  // defi district
+  Purple = 7,
+}
+
+export type Palette = {
+  0: number
+  1: number
+  2: number
+  3: number
+  4: number
+  5: number
+  6: number
+  7: number
 }

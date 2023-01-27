@@ -8,6 +8,8 @@ import {
   type Errors,
   type InteractionInfo,
   ErrorKey,
+  type BasicPixel,
+  type ApiPixel,
 } from '@/types'
 import { useLocalStore } from './local'
 export const useStore = defineStore('player', {
@@ -31,9 +33,52 @@ export const useStore = defineStore('player', {
       showPalettePanel: false as boolean,
       pixelToPaint: null as Pixel | null,
       pixelMap: {} as PixelMap,
+      checkpoint: 0,
+      pixels: new Array(1000).fill(null).map((row, i) =>
+        new Array(1000).fill(null).map(
+          (col, j) =>
+            ({
+              x: i,
+              y: j,
+              fill: 'white',
+              author: null,
+              timestamp: null,
+            } as BasicPixel)
+        )
+      ),
     }
   },
   actions: {
+    async getPixelMap() {
+      console.log('inside get pixelmap')
+      const tokenInfo = this.localStore.getToken()
+      const request = await this.api.getCanvas({
+        checkpoint: this.checkpoint,
+        token: tokenInfo.token,
+      })
+      console.log('request', request)
+      if (request.error) {
+        // TODO: set correct error
+        // this.setError(ErrorKey.auth, request.error)
+      } else {
+        // normalize pixels from api to ui type
+        const normalizedPixels: Array<Array<BasicPixel>> = request.pixels.map(
+          (row: Array<ApiPixel>) => {
+            return row.map(pixel => {
+              return {
+                x: pixel.x,
+                y: pixel.y,
+                fill: pixel.color,
+                author: pixel.owner,
+                // TODO: the api should return this value
+                timestamp: Date.now(),
+              }
+            })
+          }
+        )
+        this.pixels = normalizedPixels
+      }
+    },
     paintPixel() {
       if (
         this.pixelMap &&
@@ -169,21 +214,18 @@ export const useStore = defineStore('player', {
         router.push({ name: 'init-game' })
         this.setError(ErrorKey.info, request.error)
       } else {
+        // TODO: remove
+        this.getPixelMap()
+        console.log('[getPlayerInfo]: request ->', request)
         this.clearError(ErrorKey.info)
-        const { key, username, score, color } = request.player
+        const { key, username, score, color, palette } = request.player
         this.id = key
         this.username = username
         this.score = score
-        this.palettePoints = {
-          0: 5000,
-          1: 0,
-          2: 0,
-          3: 0,
-          4: 0,
-          5: 0,
-          6: 0,
-          7: 5000,
-        }
+        this.palettePoints = palette
+        // TODO: add ranking in the api reponse
+        // this.ranking = ranking
+
         this.color = color
         if (request.lastInteractionIn) {
           this.interactionIn = request.lastInteractionIn
