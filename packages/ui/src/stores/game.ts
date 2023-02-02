@@ -31,8 +31,10 @@ export const useGameStore = defineStore('gameStore', {
   }),
   getters: {
     isGameOver(): boolean {
-      //FIXME: make it reactive
       return this.gameOverTimeMilli < Date.now()
+    },
+    isRedeemCountdownOver(): boolean {
+      return this.timeToRedeemInMilli < Date.now()
     },
     isMainnetTime() {
       return isMainnetTime()
@@ -77,6 +79,12 @@ export const useGameStore = defineStore('gameStore', {
     },
     setGameOverStatus(status: GameOverStatus) {
       this.gameOverStatus = status
+    },
+    setGameOver() {
+      this.gameOver = true
+    },
+    setRedeemCountdownOver() {
+      this.redeemCountdownOver = true
     },
     setProvider(provider: Provider) {
       this.provider = provider

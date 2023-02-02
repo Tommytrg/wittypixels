@@ -2,15 +2,12 @@ import { defineStore } from 'pinia'
 import { ApiService } from '@/api'
 import router from '../router'
 import {
-  type Pixel,
   type PalettePoints,
   type PixelDB,
   type Errors,
   type InteractionInfo,
   ErrorKey,
 } from '@/types'
-import { COLORS, COLOR_FROM_HEX } from '@/constants'
-import { standardizePixelCoordinates } from '@/utils'
 import { useLocalStore } from './local'
 export const useStore = defineStore('player', {
   state: () => {
@@ -29,12 +26,12 @@ export const useStore = defineStore('player', {
       history: [],
       playersGlobalStats: [],
       errors: {} as Errors,
-      selectedColor: null as string | null,
+      selectedColor: null as number | null,
       palettePoints: {} as PalettePoints,
       showPalettePanel: false as boolean,
-      pixelToPaint: null as Pixel | null,
+      pixelToPaint: null as PixelDB | null,
       pixelMap: [] as Array<Array<PixelDB>>,
-      checkpoint: undefined,
+      checkpoint: 0,
     }
   },
   actions: {
@@ -47,6 +44,7 @@ export const useStore = defineStore('player', {
       } else {
         if (request?.canvas?.pixels) {
           this.pixelMap = request.canvas.pixels
+          console.log('holaaa request get pixelmap', this.pixelMap)
           // Avoid reassign pixels in property to avoid computed property to recompute
         }
         if (request?.canvas?.diff) {
@@ -67,33 +65,29 @@ export const useStore = defineStore('player', {
     async paintPixel() {
       if (this.pixelToPaint && this.selectedColor) {
         const tokenInfo = this.localStore.getToken()
+        console.log('paint pixel in x', this.pixelToPaint.x)
+        console.log('paint pixel in y', this.pixelToPaint.y)
         const request = await this.api.drawPixel({
           x: this.pixelToPaint.x,
           y: this.pixelToPaint.y,
-          color: this.selectedColor
-            ? COLOR_FROM_HEX[this.selectedColor]
-            : COLOR_FROM_HEX[this.pixelToPaint.fill],
+          color: this.selectedColor ? this.selectedColor : this.pixelToPaint.c,
           token: tokenInfo.token,
         })
         if (request.error) {
           this.setError(ErrorKey.paint, request.error)
         } else {
           this.pixelMap[request.x][request.y] = request
+          console.log('pixel painted!!', this.pixelMap[request.x][request.y])
           this.clearError(ErrorKey.paint)
         }
       }
     },
-    setPixelToPaint(pixel: Pixel) {
+    setPixelToPaint(pixel: PixelDB) {
       const pixelFromMap = this.pixelMap[pixel.x]
         ? this.pixelMap[pixel.x][pixel.y]
         : null
       if (this.pixelMap && pixelFromMap?.o) {
-        this.pixelToPaint = {
-          ...pixel,
-          timestamp: pixelFromMap?.t,
-          author: pixelFromMap?.o,
-          fill: COLORS[pixelFromMap.c],
-        }
+        this.pixelToPaint = pixelFromMap
       } else {
         this.pixelToPaint = pixel
       }
@@ -105,10 +99,10 @@ export const useStore = defineStore('player', {
     togglePalettePanel(value: boolean) {
       this.showPalettePanel = value
     },
-    selectColor(color: string) {
+    selectColor(color: number) {
       this.selectedColor = color
       if (this.pixelToPaint) {
-        this.pixelToPaint.fill = color
+        this.pixelToPaint.c = color
       }
     },
     notify(payload: any) {
@@ -212,10 +206,7 @@ export const useStore = defineStore('player', {
         this.id = key
         this.username = username
         this.score = score
-        // Avoid re-render pallete when is the same palette
-        if (!isSamePallete(this.palettePoints, palette)) {
-          this.palettePoints = palette
-        }
+        this.palettePoints = palette
         this.color = color
         this.creationIndex = creationIndex
         if (request.lastInteractionIn) {
@@ -228,16 +219,3 @@ export const useStore = defineStore('player', {
     },
   },
 })
-
-function isSamePallete(
-  oldPalete: PalettePoints,
-  newPalette: PalettePoints
-): boolean {
-  return Object.entries(oldPalete).reduce(
-    (isDifferent, [colorName, oldPaletteColorAmount]) => {
-      const newPaletteColorAmount = newPalette[Number(colorName)]
-      return isDifferent || oldPaletteColorAmount === newPaletteColorAmount
-    },
-    false
-  )
-}

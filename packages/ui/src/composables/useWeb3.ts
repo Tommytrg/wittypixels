@@ -65,7 +65,7 @@ export function useWeb3() {
   let erc20Contract: any
 
   onMounted(() => {
-    if (window.ethereum) {
+    if (window.ethereum && !web3) {
       web3 = new Web3(window.ethereum || 'ws://localhost:8545')
       // detect account change
       window.ethereum.on('accountsChanged', (accounts: any) => {
@@ -279,9 +279,6 @@ export function useWeb3() {
   }
 
   async function getWalletInfo({ walletAddress }: { walletAddress: string }) {
-    // If the player has redeem ownership of the NFT
-    // It returns the percentage redeem
-    // It return the amount of eth the player can get if he withdraws
     try {
       const ERC20WalletInfo: ERC20WalletInfo = await erc20Contract.methods
         .getWalletInfo(walletAddress)

@@ -3,7 +3,7 @@
     <div v-if="pixelToPaint" class="selected-pixel" @click="closePanel">
       <div
         class="pixel-color"
-        :style="{ 'background-color': pixelToPaint?.fill ?? 'lightgrey' }"
+        :style="{ 'background-color': COLORS[pixelToPaint?.c] ?? 'white' }"
       ></div>
       <div class="pixel-info">
         <div class="info-top">
@@ -12,12 +12,10 @@
             <p class="dark-text">y {{ pixelToPaint?.y }}</p>
           </div>
           <p class="light-text time">
-            {{ formatDistanceToNow(pixelToPaint?.timestamp) }}
+            {{ formatDistanceToNow(pixelToPaint?.t) }}
           </p>
         </div>
-        <p v-if="pixelToPaint?.author" class="dark-text">
-          @{{ pixelToPaint?.author }}
-        </p>
+        <p v-if="pixelToPaint?.o" class="dark-text">@{{ pixelToPaint?.o }}</p>
       </div>
     </div>
     <div v-if="!gameOver" class="palette">
@@ -48,7 +46,7 @@ import { COLORS } from '@/constants'
 import { computed } from 'vue'
 import { useStore } from '@/stores/player'
 import { useGameStore } from '@/stores/game'
-import { standardizePixelCoordinates, formatDistanceToNow } from '@/utils'
+import { formatDistanceToNow } from '@/utils'
 export default {
   setup() {
     const store = useStore()
@@ -61,7 +59,7 @@ export default {
           if (key !== '0' && key !== '1') {
             return {
               points: palette.value[key] ?? 0,
-              color: COLORS[key],
+              color: Number(key),
             }
           }
         })
@@ -83,9 +81,9 @@ export default {
       colors,
       paintPixel,
       pixelToPaint,
-      standardizePixelCoordinates,
       formatDistanceToNow,
       closePanel,
+      COLORS,
     }
   },
 }
@@ -104,7 +102,7 @@ export default {
   align-items: center;
   justify-content: center;
   .pixel-color {
-    border: 2px solid $black;
+    border: 1.5px solid $black;
     display: flex;
     width: 48px;
     height: 48px;

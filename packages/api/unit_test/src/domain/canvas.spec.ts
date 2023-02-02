@@ -24,10 +24,10 @@ describe('canvas.ts', () => {
         owner: '12345',
         x: 0,
         y: 0,
-        color: 1,
+        c: 1,
       })
 
-      expect(draw.color).toBe(1)
+      expect(draw.c).toBe(1)
       expect(draw.ends).toBe(now + INTERACTION_DURATION_MILLIS)
       expect(draw.owner).toBe('12345')
       expect(draw.timestamp).toBe(now)
@@ -42,7 +42,7 @@ describe('canvas.ts', () => {
         owner: '123456',
         x: 4,
         y: 6,
-        color: 2,
+        c: 2,
       })
 
       const pixel = canvas.pixels[4][6]
@@ -59,7 +59,7 @@ describe('canvas.ts', () => {
         owner: '123456',
         x: 4,
         y: 6,
-        color: 2,
+        c: 2,
       })
 
       const pixel = canvas.pixels[4][6]

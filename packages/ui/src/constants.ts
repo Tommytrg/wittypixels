@@ -4,6 +4,7 @@ import {
   type NetworkMap,
   TokenStatus,
   ColorHexMap,
+  TxType,
 } from '@/types'
 
 export const ERC721_ADDRESS =
@@ -139,6 +140,16 @@ export const TOKEN_STATUS: Record<number, TokenStatus> = {
   3: TokenStatus.Fractionalized,
   4: TokenStatus.SoldOut,
 }
+export const TX_ACTION_COPY: Record<TxType, string> = {
+  [TxType.Redeem]: 'Redeem ownership',
+  [TxType.Buy]: 'Buy NFT',
+  [TxType.Withdraw]: 'Withdraw',
+}
+export const TX_ACTION_PROGRESS_COPY: Record<TxType, string> = {
+  [TxType.Redeem]: 'Redeeming...',
+  [TxType.Buy]: 'Buying...',
+  [TxType.Withdraw]: 'Withdrawing...',
+}
 export const TIMEZONE = 'America/Denver'
 export const PIXEL_SIZE = 16
 export const CANVAS_WIDTH = 1000
@@ -154,11 +165,9 @@ export const TIME_TO_REDEEM_MILLISECONDS = import.meta.env
   ? parseInt(import.meta.env.VITE_TIME_TO_REDEEM_MILLISECONDS)
   : 60000
 
-export const GAME_ENDS_TIMESTAMP = 1677218400000
-
-// export const GAME_ENDS_TIMESTAMP = import.meta.env.VITE_GAME_ENDS_TIMESTAMP
-//   ? parseInt(import.meta.env.VITE_GAME_ENDS_TIMESTAMP)
-//   : 1677891600000 // Fri, 3 March 2023 18:00 GMT-7,
+export const GAME_ENDS_TIMESTAMP = import.meta.env.VITE_GAME_ENDS_TIMESTAMP
+  ? parseInt(import.meta.env.VITE_GAME_ENDS_TIMESTAMP)
+  : 1677891600000 // Fri, 3 March 2023 18:00 GMT-7,
 
 export const PLAYER_MAINNET_TIMESTAMP = import.meta.env.PLAYER_MAINNET_TIMESTAMP
   ? parseInt(import.meta.env.VITE_PLAYER_MAINNET_TIMESTAMP)

@@ -46,7 +46,7 @@ export default {
   height: 32px;
 }
 .index-container {
-  border: 2px solid $black;
+  border: 1px solid $black;
   display: flex;
   justify-content: center;
   align-items: center;

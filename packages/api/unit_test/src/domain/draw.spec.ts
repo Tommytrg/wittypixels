@@ -4,7 +4,7 @@ import { CANVAS_SECTOR_SIZE } from '../../../src/constants'
 describe('draw.ts', () => {
   it('should return the correct object calling toDbVTO', async () => {
     const canvas = new Draw({
-      color: 0,
+      c: 0,
       ends: 1675178197787,
       owner: 'abcde',
       timestamp: 1675178195287,
@@ -13,7 +13,7 @@ describe('draw.ts', () => {
     })
 
     expect(canvas.toDbVTO()).toStrictEqual({
-      color: 0,
+      c: 0,
       ends: 1675178197787,
       owner: 'abcde',
       timestamp: 1675178195287,
@@ -24,7 +24,7 @@ describe('draw.ts', () => {
 
   it('should return the correct object calling toVTO', async () => {
     const canvas = new Draw({
-      color: 0,
+      c: 0,
       ends: 1675178197787,
       owner: 'abcde',
       timestamp: 1675178195287,
@@ -43,7 +43,7 @@ describe('draw.ts', () => {
 
   it('should calculate the database sector toDbSectorInfo with when pixel is smaller than cache size', async () => {
     const canvas = new Draw({
-      color: 0,
+      c: 0,
       ends: 1675178197787,
       owner: 'abcde',
       timestamp: 1675178195287,
@@ -56,7 +56,7 @@ describe('draw.ts', () => {
 
   it('should calculate the database sector toDbSectorInfo with when pixel is bigger than cache size', async () => {
     const canvas = new Draw({
-      color: 0,
+      c: 0,
       ends: 1675178197787,
       owner: 'abcde',
       timestamp: 1675178195287,

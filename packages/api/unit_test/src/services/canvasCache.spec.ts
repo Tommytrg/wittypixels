@@ -3,9 +3,9 @@ import { CanvasCache } from '../../../src/services/canvasCache'
 
 function drawFactory(player: string): Draw {
   return new Draw({
-    color: 0,
+    c: 0,
     ends: 0,
-    player: player,
+    owner: player,
     timestamp: 0,
     x: 0,
     y: 0,

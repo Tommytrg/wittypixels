@@ -31,7 +31,6 @@
 import { useStore } from '@/stores/player'
 import { useLocalStore } from '@/stores/local'
 import { useModalStore } from '@/stores/modal'
-import { useGameStore } from '@/stores/game'
 import { ModalKey, ErrorKey } from '@/types'
 import { onBeforeMount, onMounted, onBeforeUnmount } from 'vue'
 import { POLLER_MILLISECONDS } from '@/constants'
@@ -40,11 +39,10 @@ export default {
   setup() {
     const player = useStore()
     const localStore = useLocalStore()
-    const gameStore = useGameStore()
     const router = useRouter()
     const modalStore = useModalStore()
     let playerInfoPoller = null
-    // TODO: HANDLE END OF GAME
+
     onBeforeMount(async () => {
       const token = await localStore.getToken()
       if (!token) {
@@ -60,9 +58,6 @@ export default {
           player.id !== router.currentRoute.value.params.id
         ) {
           await player.interact({ key: router.currentRoute.value.params.id })
-        }
-        if (gameStore.gameOver) {
-          await localStore.getMintInfo()
         }
       }
     })
@@ -85,7 +80,7 @@ export default {
   position: absolute;
   max-width: 700px;
   z-index: 20;
-  width: 100%;
+  width: max-content;
   .game-info {
     margin: 16px;
     display: grid;

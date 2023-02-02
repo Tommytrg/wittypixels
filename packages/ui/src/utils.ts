@@ -15,10 +15,6 @@ export function isMainnetTime() {
   return Date.now() >= PLAYER_MAINNET_TIMESTAMP * 1000
 }
 
-export function standardizePixelCoordinates(coordinate: number) {
-  return coordinate > 0 ? coordinate / PIXEL_SIZE : coordinate
-}
-
 export function cropMiddle(text: string, length: number) {
   if (text.length > length) {
     const leftSizeLengh = Math.floor((length - 3) / 2)
