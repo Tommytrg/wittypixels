@@ -39,15 +39,22 @@ const canvas: FastifyPluginAsync = async (fastify): Promise<void> => {
       const canvasCache = fastify.canvasCache
 
       const checkpoint = request.query.checkpoint
+      const checkpointIsEmpty = !checkpoint && !Number.isInteger(checkpoint)
+      const checkpointIsOutdated =
+        canvasCache.lastIndex - (Number(checkpoint) || 0) > MAX_PIXELS_DIFF
 
-      if (!checkpoint || canvasCache.lastIndex - checkpoint > MAX_PIXELS_DIFF) {
+      console.log('checkpointisEmpty', request.query)
+      console.log('checkpointisEmpty', checkpointIsEmpty)
+      console.log('checkpointIsOutdated', checkpointIsOutdated)
+
+      if (checkpointIsEmpty || checkpointIsOutdated) {
         return reply.status(200).send({
           canvas: canvas.toVTO(),
           checkpoint: canvasCache.lastIndex,
         })
       } else {
         return reply.status(200).send({
-          canvas: fastify.canvasCache.getFrom(checkpoint),
+          diff: fastify.canvasCache.getFrom(Number(checkpoint) || 0),
           checkpoint: fastify.canvasCache.lastIndex,
         })
       }

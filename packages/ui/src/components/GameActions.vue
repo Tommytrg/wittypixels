@@ -35,13 +35,13 @@
         Allowing redeem
         <span v-if="!gameStore.redeemCountdownOver">
           in
-          <TimeLeft
+          <!-- <TimeLeft
             v-if="!gameStore.redeemCountdownOver"
             class="time-left"
             :timestamp="gameStore.timeToRedeemInMilli"
             :seconds="true"
             @clear-timestamp="allowRedeem"
-          />
+          /> -->
         </span>
         ...
       </p>

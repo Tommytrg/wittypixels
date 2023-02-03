@@ -24,7 +24,7 @@
         </p>
       </div>
     </div>
-    <div v-if="!game.gameOver" class="palette">
+    <div v-if="!gameOver" class="palette">
       <ColorSelector
         v-for="color in colors"
         :key="color"
@@ -32,12 +32,12 @@
         :points="color.points"
       />
     </div>
-    <p v-if="!game.gameOver" class="light-text copy">
+    <p v-if="!gameOver" class="light-text copy">
       Remember: you can get more paints by getting your pendant scanned by other
       players!
     </p>
     <CustomButton
-      v-if="!game.gameOver"
+      v-if="!gameOver"
       type="primary"
       :slim="true"
       @click="paintPixel"
@@ -79,8 +79,11 @@ export default {
       store.clearPixelToPaint()
       store.togglePalettePanel(false)
     }
+    // TODO: Does this avoid re-render?
+    const gameOver = computed(() => game.gameOver)
     return {
       game,
+      gameOver,
       colors,
       paintPixel,
       pixelToPaint,

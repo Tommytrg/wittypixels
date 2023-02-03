@@ -93,11 +93,11 @@ export const PLAYER_MAINNET_TIMESTAMP = process.env.PLAYER_MAINNET_TIMESTAMP
 
 export const CANVAS_MAX_X = process.env.CANVAS_MAX_X
   ? parseInt(process.env.CANVAS_MAX_X)
-  : 100
+  : 10
 
 export const CANVAS_MAX_Y = process.env.CANVAS_MAX_Y
   ? parseInt(process.env.CANVAS_MAX_Y)
-  : 100
+  : 10
 
 export const CANVAS_SECTOR_SIZE = process.env.CANVAS_SECTOR_SIZE
   ? parseInt(process.env.CANVAS_SECTOR_SIZE)

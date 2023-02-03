@@ -34,20 +34,32 @@ export const useStore = defineStore('player', {
       showPalettePanel: false as boolean,
       pixelToPaint: null as Pixel | null,
       pixelMap: [] as Array<Array<PixelDB>>,
-      checkpoint: 0,
+      checkpoint: undefined,
     }
   },
   actions: {
     async getPixelMap() {
-      const tokenInfo = this.localStore.getToken()
       const request = await this.api.getCanvas({
         checkpoint: this.checkpoint,
-        token: tokenInfo?.token ?? null,
       })
       if (request.error) {
         this.setError(ErrorKey.canvas, request.error)
       } else {
-        this.pixelMap = request.canvas.pixels
+        if (request?.canvas?.pixels) {
+          this.pixelMap = request.canvas.pixels
+          // Avoid reassign pixels in property to avoid computed property to recompute
+        }
+        if (request?.canvas?.diff) {
+          const diff = request.canvas.diff
+          if (diff.lenght) {
+            this.$patch(() => {
+              // TODO: remove repeated
+              diff.forEach((pixel: PixelDB) => {
+                this.pixelMap[pixel.x][pixel.y] = pixel
+              })
+            })
+          }
+        }
         this.checkpoint = request.checkpoint
         this.clearError(ErrorKey.canvas)
       }
@@ -202,7 +214,10 @@ export const useStore = defineStore('player', {
         this.id = key
         this.username = username
         this.score = score
-        this.palettePoints = palette
+        // Avoid re-render pallete when is the same palette
+        if (!isSamePallete(this.palettePoints, palette)) {
+          this.palettePoints = palette
+        }
         this.color = color
         this.creationIndex = creationIndex
         if (request.lastInteractionIn) {
@@ -215,3 +230,16 @@ export const useStore = defineStore('player', {
     },
   },
 })
+
+function isSamePallete(
+  oldPalete: PalettePoints,
+  newPalette: PalettePoints
+): boolean {
+  return Object.entries(oldPalete).reduce(
+    (isDifferent, [colorName, oldPaletteColorAmount]) => {
+      const newPaletteColorAmount = newPalette[Number(colorName)]
+      return isDifferent || oldPaletteColorAmount === newPaletteColorAmount
+    },
+    false
+  )
+}

@@ -143,13 +143,17 @@ export const PixelLocation = Type.Object({
 })
 export type PixelLocation = Static<typeof PixelLocation>
 
+export const Pixels = Type.Array(Type.Array(DbPixelVTO))
+export type Pixels = Static<typeof Pixels>
+
 export const CanvasVTO = Type.Object({
-  pixels: Type.Array(Type.Array(DbPixelVTO)),
+  pixels: Pixels,
 })
 export type CanvasVTO = Static<typeof CanvasVTO>
 
 export const GetCanvasResponse = Type.Object({
-  canvas: CanvasVTO,
+  canvas: Type.Optional(CanvasVTO),
+  diff: Type.Optional(Pixels),
   checkpoint: Type.Number(),
 })
 export type GetCanvasResponse = Static<typeof GetCanvasResponse>

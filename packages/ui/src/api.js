@@ -118,11 +118,12 @@ export class ApiService {
     })
   }
 
-  getCanvas({ checkpoint = 0, token }) {
+  getCanvas({ checkpoint }) {
     return this._get({
       url: `${this.baseUrl}/canvas`,
-      data: { checkpoint },
-      params: { headers: { authorization: token } },
+      config: {
+        params: { checkpoint },
+      },
     })
   }
 
