@@ -1,6 +1,9 @@
 <template>
   <div class="pixel-board" ref="targetBoard">
-    <LoadingSpinner v-if="!pixelList.length" />
+    <LoadingSpinner v-if="!pixelMap[0]?.length" />
+
+    -- {{ pixelToPaint }} --
+
     <v-stage
       ref="stage"
       :config="configKonva"
@@ -9,18 +12,39 @@
     >
       <v-layer ref="layer">
         <!-- What is :active for? -->
+        <!-- id: generateId({ x: x, y: y }),
+        author: null,
+        timestamp: null,
+        x: x,
+        y: y,
+        width: PIXEL_SIZE,
+        height: PIXEL_SIZE,
+        fill: color,
+        strokeWidth: 1,
+        stroke: strokeColor, -->
         <v-rect
-          v-for="pixel in pixelList"
-          :active="false"
-          :ref="pixel.id"
-          :key="pixel.id"
-          :config="pixel"
+          v-for="pixel in pixelMap.flat()"
+          :ref="`${pixel.x}:${pixel.y}`"
+          :key="`${pixel.x}:${pixel.y}`"
+          :config="{
+            x: pixel.x * PIXEL_SIZE,
+            y: pixel.y * PIXEL_SIZE,
+            fill: COLORS[pixel.c],
+            height: PIXEL_SIZE,
+            width: PIXEL_SIZE,
+            strokeWidth: 1,
+            stroke: pixel.c !== 0 ? COLORS[pixel.c] : '#8a8a8a3d',
+          }"
           @click="previewPixelAndShowPanel({ x: pixel.x, y: pixel.y })"
           @tap="previewPixelAndShowPanel({ x: pixel.x, y: pixel.y })"
         ></v-rect>
         <v-rect
           v-if="pixelToPaint && authorizedPlayer"
-          :config="pixelToPaint"
+          :config="{
+            ...pixelToPaint,
+            x: pixelToPaint.x * PIXEL_SIZE,
+            y: pixelToPaint.y * PIXEL_SIZE,
+          }"
           @click="showPanel()"
         ></v-rect>
       </v-layer>
@@ -37,9 +61,6 @@ import { PIXEL_SIZE, SCALE_BY, COLORS, POLLER_MILLISECONDS } from '@/constants'
 
 export default {
   setup() {
-    // TODO: use conva cache: https://konvajs.org/docs/vue/Cache.html
-
-    console.log('1')
     const store = useStore()
     let pixelMapPoller: any = null
     const stage = ref()
@@ -47,7 +68,6 @@ export default {
     const targetBoard = ref()
     let configKonva = ref({})
     onMounted(async () => {
-      console.log(2)
       configKonva.value = {
         width: targetBoard.value.clientWidth,
         height: targetBoard.value.clientHeight,
@@ -55,53 +75,48 @@ export default {
       }
     })
     onMounted(() => {
-      console.log(3)
       pixelMapPoller = setInterval(async () => {
         await store.getPixelMap()
       }, POLLER_MILLISECONDS)
     })
     onBeforeUnmount(() => {
-      console.log(4)
       clearInterval(pixelMapPoller)
     })
     const selectedColor = computed(() => {
-      console.log(5)
       return store.selectedColor
     })
     const pixelToPaint = computed(() => {
-      console.log(6)
       return store.pixelToPaint
     })
     const stageNode = computed(() => {
-      console.log(7)
       return stage.value.getNode()
     })
     const stageContainer = computed(() => {
-      console.log(8)
       return stage.value.getStage().container()
     })
     const authorizedPlayer = computed(() => {
-      console.log(9)
       return store.username
     })
-    const pixelList = computed(() => {
-      console.log(10)
-      return store.pixelMap?.flatMap((pixels: Array<PixelDB>) => {
-        console.log(11)
-        return pixels.map((pixel: PixelDB) => {
-          console.log(12)
-          // Scale pixel size to improve pixel visibility
-          return generatePixel({
-            x: pixel.x * PIXEL_SIZE,
-            y: pixel.y * PIXEL_SIZE,
-            color: COLORS[pixel.c],
-            strokeColor: pixel.c !== 0 ? COLORS[pixel.c] : '#8a8a8a3d',
-          })
-        })
-      })
+    // const pixelList = computed(() => {
+    //   console.log(10, store.pixelMap)
+    //   return store.pixelMap?.flatMap((pixels: Array<PixelDB>) => {
+    //     console.log(11)
+    //     return pixels.map((pixel: PixelDB) => {
+    //       console.log(12)
+    //       // Scale pixel size to improve pixel visibility
+    //       return generatePixel({
+    //         x: pixel.x * PIXEL_SIZE,
+    //         y: pixel.y * PIXEL_SIZE,
+    //         color: COLORS[pixel.c],
+    //         strokeColor: pixel.c !== 0 ? COLORS[pixel.c] : '#8a8a8a3d',
+    //       })
+    //     })
+    //   })
+    // })
+    const pixelMap = computed(() => {
+      return store.pixelMap
     })
     function generateId({ x, y }: Coordinates): string {
-      console.log(13)
       return `${x}:${y}`
     }
     function generatePixel({
@@ -110,7 +125,6 @@ export default {
       color,
       strokeColor = color,
     }: GeneratePixelArgs): Pixel {
-      console.log(14)
       return {
         id: generateId({ x: x, y: y }),
         author: null,
@@ -125,24 +139,20 @@ export default {
       }
     }
     function showPanel() {
-      console.log(15)
       store.togglePalettePanel(true)
     }
     function previewPixelAndShowPanel({ x, y }: Coordinates) {
-      console.log(16)
       if (authorizedPlayer.value) {
         showPanel()
         previewPixel({ x, y })
       }
     }
     function previewPixel({ x, y }: Coordinates) {
-      console.log(17)
       if (
         !pixelToPaint.value ||
         generateId({ x: pixelToPaint.value.x, y: pixelToPaint.value.y }) !==
           generateId({ x, y })
       ) {
-        console.log('17.1')
         store.setPixelToPaint(
           generatePixel({
             x,
@@ -155,7 +165,6 @@ export default {
       stageContainer.value.style.cursor = 'pointer'
     }
     function isActive(pixel: Pixel) {
-      console.log(18)
       return (
         pixel.fill ===
         COLORS[
@@ -166,16 +175,13 @@ export default {
       )
     }
     function clearPixelToPaint() {
-      console.log(19)
       store.clearPixelToPaint()
       store.togglePalettePanel(false)
     }
     function changeDragCursor() {
-      console.log(20)
       stageContainer.value.style.cursor = 'move'
     }
     function zoom(e: any) {
-      console.log(21)
       e.evt.preventDefault()
       // Scale
       let direction = e.evt.deltaY > 0 ? 1 : -1
@@ -208,11 +214,13 @@ export default {
       targetBoard,
       previewPixelAndShowPanel,
       showPanel,
-      pixelList,
+      pixelMap,
       isActive,
       generatePixel,
       authorizedPlayer,
       layer,
+      COLORS,
+      PIXEL_SIZE,
     }
   },
 }

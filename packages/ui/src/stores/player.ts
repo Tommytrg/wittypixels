@@ -68,8 +68,8 @@ export const useStore = defineStore('player', {
       if (this.pixelToPaint && this.selectedColor) {
         const tokenInfo = this.localStore.getToken()
         const request = await this.api.drawPixel({
-          x: standardizePixelCoordinates(this.pixelToPaint.x),
-          y: standardizePixelCoordinates(this.pixelToPaint.y),
+          x: this.pixelToPaint.x,
+          y: this.pixelToPaint.y,
           color: this.selectedColor
             ? COLOR_FROM_HEX[this.selectedColor]
             : COLOR_FROM_HEX[this.pixelToPaint.fill],
@@ -84,10 +84,8 @@ export const useStore = defineStore('player', {
       }
     },
     setPixelToPaint(pixel: Pixel) {
-      const pixelFromMap = this.pixelMap[standardizePixelCoordinates(pixel.x)]
-        ? this.pixelMap[standardizePixelCoordinates(pixel.x)][
-            standardizePixelCoordinates(pixel.y)
-          ]
+      const pixelFromMap = this.pixelMap[pixel.x]
+        ? this.pixelMap[pixel.x][pixel.y]
         : null
       if (this.pixelMap && pixelFromMap?.o) {
         this.pixelToPaint = {

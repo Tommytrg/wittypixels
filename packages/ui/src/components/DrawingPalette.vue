@@ -8,12 +8,8 @@
       <div class="pixel-info">
         <div class="info-top">
           <div class="coordinates">
-            <p class="dark-text">
-              x {{ standardizePixelCoordinates(pixelToPaint?.x) }}
-            </p>
-            <p class="dark-text">
-              y {{ standardizePixelCoordinates(pixelToPaint?.y) }}
-            </p>
+            <p class="dark-text">x {{ pixelToPaint?.x }}</p>
+            <p class="dark-text">y {{ pixelToPaint?.y }}</p>
           </div>
           <p class="light-text time">
             {{ formatDistanceToNow(pixelToPaint?.timestamp) }}
