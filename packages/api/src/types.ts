@@ -76,7 +76,7 @@ export type DbDrawVTO = Static<typeof DbDrawVTO>
 
 export const DrawVTO = Type.Object({
   // ends
-  e: Type.Integer(),
+  // e: Type.Integer(),
   // owner
   o: Type.String(),
   // timestamp
@@ -153,7 +153,7 @@ export type CanvasVTO = Static<typeof CanvasVTO>
 
 export const GetCanvasResponse = Type.Object({
   canvas: Type.Optional(CanvasVTO),
-  diff: Type.Optional(Pixels),
+  diff: Type.Optional(Type.Array(DrawVTO)),
   checkpoint: Type.Number(),
 })
 export type GetCanvasResponse = Static<typeof GetCanvasResponse>

@@ -54,7 +54,9 @@ const canvas: FastifyPluginAsync = async (fastify): Promise<void> => {
         })
       } else {
         return reply.status(200).send({
-          diff: fastify.canvasCache.getFrom(Number(checkpoint) || 0),
+          diff: fastify.canvasCache
+            .getFrom(Number(checkpoint) || 0)
+            .map(draw => draw.toVTO()),
           checkpoint: fastify.canvasCache.lastIndex,
         })
       }
@@ -173,8 +175,9 @@ const canvas: FastifyPluginAsync = async (fastify): Promise<void> => {
       }
 
       fastify.canvasCache.add(draw)
-
-      return reply.status(200).send(draw.toVTO())
+      const d = draw.toVTO()
+      console.log('d', d)
+      return reply.status(200).send(d)
     },
   })
 }
