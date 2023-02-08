@@ -152,8 +152,7 @@ export const CanvasVTO = Type.Object({
 export type CanvasVTO = Static<typeof CanvasVTO>
 
 export const GetCanvasResponse = Type.Object({
-  canvas: Type.Optional(CanvasVTO),
-  diff: Type.Optional(Type.Array(DrawVTO)),
+  canvas: Type.String(),
   checkpoint: Type.Number(),
 })
 export type GetCanvasResponse = Static<typeof GetCanvasResponse>
@@ -286,11 +285,8 @@ export const DrawParams = Type.Object({
 export type DrawParams = Static<typeof DrawParams>
 
 export const DrawResult = Type.Object({
-  x: Type.Integer(),
-  y: Type.Integer(),
-  c: Type.Enum(Color),
-  o: Type.String(),
-  t: Type.Number(),
+  canvas: Type.String(),
+  checkpoint: Type.Number(),
 })
 
 export type DrawResult = Static<typeof DrawResult>
@@ -309,6 +305,21 @@ export type InteractionHistoryResponse = Static<
 export type Palette = { [key in Color]: number }
 
 export const GetCanvasParams = Type.Object({
-  checkpoint: Type.Optional(Type.Number()),
+  checkpoint: Type.Number(),
 })
 export type GetCanvasParams = Static<typeof GetCanvasParams>
+
+export const GetPixelInfo = Type.Object({
+  x: Type.Number(),
+  y: Type.Number(),
+})
+export type GetPixelInfo = Static<typeof GetPixelInfo>
+
+export const PixelInfo = Type.Object({
+  x: Type.Number(),
+  y: Type.Number(),
+  color: Type.Enum(Color),
+  timestamp: Type.Number(),
+  owner: Type.String(),
+})
+export type PixelInfo = Static<typeof PixelInfo>

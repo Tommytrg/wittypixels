@@ -1,11 +1,39 @@
+import { createCanvas } from 'canvas'
+import fs from 'fs'
 import {
   CANVAS_MAX_X,
   CANVAS_MAX_Y,
   CANVAS_SECTOR_SIZE,
   INTERACTION_DURATION_MILLIS,
 } from '../constants'
-import { Color, CanvasVTO, DbDrawVTO, DbSectorVTO, DbPixelVTO } from '../types'
+import {
+  Color,
+  CanvasVTO,
+  DbDrawVTO,
+  DbSectorVTO,
+  DbPixelVTO,
+  PixelInfo,
+} from '../types'
 import { Draw } from './draw'
+
+const colorToRGB: Record<number, [number, number, number, 255]> = {
+  // white,
+  0: [0, 0, 0, 255],
+  // black,
+  1: [255, 255, 255, 255],
+  // orange,
+  2: [255, 165, 0, 255],
+  // yellow
+  3: [255, 255, 0, 255],
+  // green,
+  4: [0, 255, 0, 255],
+  // blue,
+  5: [0, 0, 255, 255],
+  // red,
+  6: [255, 0, 0, 255],
+  // purple,
+  7: [141, 82, 255, 255],
+}
 
 type Pixel = {
   // we are using only the first letter to reduce the response size
@@ -126,6 +154,71 @@ export class Canvas {
 
     return Object.values(sectors)
   }
+
+  toBase64(): string {
+    const width = this.pixels.length
+    const height = this.pixels[0].length
+
+    const buffer = new Uint8ClampedArray(
+      this.pixels.length * this.pixels[0].length * 4
+    )
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const pos = (y * width + x) * 4 // position in buffer based on x and y
+        const pixel = this.pixels[x][y]
+        const color = colorToRGB[pixel.c]
+        buffer[pos] = color[0] // some R value [0, 255]
+        buffer[pos + 1] = color[1] // some G value
+        buffer[pos + 2] = color[2] // some B value
+        buffer[pos + 3] = color[3] // set alpha channel
+      }
+    }
+
+    const canvas = createCanvas(width, height)
+    const ctx = canvas.getContext('2d')
+    canvas.width = width
+    canvas.height = height
+    // create imageData object
+    const idata = ctx.createImageData(width, height)
+    // set our buffer as source
+    idata.data.set(buffer)
+    // update canvas with new data
+    ctx.putImageData(idata, 0, 0)
+    const dataUri = canvas.toDataURL()
+    fs.writeFileSync('./base64.txt', dataUri)
+
+    return dataUri
+  }
+
+  // static scale(array: Array<Array<PixelDB>>) {
+  //   const scaledArray = new Array(array.length * 2)
+  //     .fill(null)
+  //     .map(_ => new Array(array.length * 2).fill(null).map(_ => ({})))
+  //   // Scale the original array into the new array
+  //   for (let i = 0; i < array.length; ++i) {
+  //     for (let j = 0; j < array.length; ++j) {
+  //       scaledArray[i * 2][j * 2] = array[i][j]
+  //       scaledArray[i * 2 + 1][j * 2] = array[i][j]
+  //       scaledArray[i * 2][j * 2 + 1] = array[i][j]
+  //       scaledArray[i * 2 + 1][j * 2 + 1] = array[i][j]
+  //     }
+  //   }
+
+  //   return scaledArray as Array<Array<PixelDB>>
+  // }
+
+  getPixel(x: number, y: number): PixelInfo {
+    const pixel = this.pixels[x][y]
+
+    return {
+      x,
+      y,
+      owner: pixel.o,
+      color: pixel.c,
+      timestamp: pixel.t,
+    }
+  }
 }
 
 export function getSectorsPerRow(maxX: number, sectorSize: number) {
@@ -142,3 +235,22 @@ function sectorFactory(name: string): DbSectorVTO {
 
   return sector
 }
+
+// export function createEmptyArray(len: number) {
+//   const arr = new Array(len)
+//     .fill(null)
+//     .map((_, x) =>
+//       new Array(len).fill(null).map((_, y) => ({ pos: `${x}.${y}` }))
+//     )
+
+//   return arr
+// }
+
+// export function logArray(arr: Array<Array<PixelDB>>) {
+//   for (let i = 0; i < arr.length; ++i) {
+//     for (let j = 0; j < arr.length; ++j) {
+//       process.stdout.write(' ' + arr[i][j].c)
+//     }
+//     console.log('')
+//   }
+// }
