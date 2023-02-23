@@ -22,6 +22,7 @@ import { PlayerCache } from './services/playerCache'
 import { Stats } from './domain/stats'
 import { SignRedemptionModel } from './models/signRedemption'
 import { BonusValidator } from './services/bonusValidator'
+import { TimeCache } from './services/timeCache'
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -35,6 +36,7 @@ declare module 'fastify' {
     playerCache: PlayerCache
     stats: Stats
     bonusValidator: BonusValidator
+    timeCache: TimeCache
   }
 }
 
@@ -181,6 +183,21 @@ const app: FastifyPluginAsync<AppOptions> = async (
   }
 
   fastify.register(fp(initializeStats))
+
+  // Initialize time caches
+  const initializeTimeCaches: FastifyPluginCallback = async (
+    fastify,
+    options,
+    next
+  ) => {
+    const timeCache = new TimeCache()
+
+    fastify.decorate('timeCache', timeCache)
+
+    next()
+  }
+
+  fastify.register(fp(initializeTimeCaches))
 
   // Initialize game repositories
   fastify.register(async (fastify, options, next) => {

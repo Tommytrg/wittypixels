@@ -22,7 +22,7 @@ import {
 const interactions: FastifyPluginAsync = async (fastify): Promise<void> => {
   if (!fastify.mongo.db) throw Error('mongo db not found')
 
-  const { playerModel, interactionModel, playerCache } = fastify
+  const { playerModel, interactionModel, playerCache, timeCache } = fastify
 
   fastify.post<{ Body: InteractionParams; Reply: InteractionResult | Error }>(
     '/interactions',
@@ -94,8 +94,8 @@ const interactions: FastifyPluginAsync = async (fastify): Promise<void> => {
           from: fromPlayer.username,
         })
         if (
-          lastInteractionFrom &&
-          lastInteractionFrom.ends > currentTimestamp
+          !timeCache.isValid(`from${fromPlayer.username}`) ||
+          (lastInteractionFrom && lastInteractionFrom.ends > currentTimestamp)
         ) {
           return reply
             .status(409)
@@ -106,7 +106,10 @@ const interactions: FastifyPluginAsync = async (fastify): Promise<void> => {
         const lastInteractionTo = await interactionModel.getLast({
           to: toPlayer.username,
         })
-        if (lastInteractionTo && lastInteractionTo.ends > currentTimestamp) {
+        if (
+          !timeCache.isValid(`to${toPlayer.username}`) ||
+          (lastInteractionTo && lastInteractionTo.ends > currentTimestamp)
+        ) {
           return reply
             .status(409)
             .send(new Error(`Target Player is already trading`))
@@ -131,6 +134,10 @@ const interactions: FastifyPluginAsync = async (fastify): Promise<void> => {
               )
             )
         }
+        // set cache to avoid multiple request before save the interaction
+        timeCache.add(`from${fromPlayer.username}`)
+        timeCache.add(`to${toPlayer.username}`)
+
         const selfInteraction = toPlayer.username === fromPlayer.username
         const colorQuantity = playerModel.computeColors(
           lastInteraction,

@@ -29,6 +29,7 @@ const canvas: FastifyPluginAsync = async (fastify): Promise<void> => {
     canvasCache,
     canvas,
     playerCache,
+    timeCache,
   } = fastify
 
   fastify.get<{
@@ -124,7 +125,11 @@ const canvas: FastifyPluginAsync = async (fastify): Promise<void> => {
       const lastDraw = await drawModel.getLastByPlayer({
         player: player.username,
       })
-      if (lastDraw && lastDraw.ends > currentTimestamp) {
+      if (
+        timeCache.isValid(`draw${player.username}`) &&
+        lastDraw &&
+        lastDraw.ends > currentTimestamp
+      ) {
         return reply
           .status(409)
           .send(
@@ -141,6 +146,7 @@ const canvas: FastifyPluginAsync = async (fastify): Promise<void> => {
       const lastPixelDraw = await drawModel.getLastByCoord({ x, y })
 
       if (
+        timeCache.isValid(`${x}${y}`) &&
         lastPixelDraw &&
         lastPixelDraw.timestamp + PIXEL_LOCKED_DURATION_MS > currentTimestamp
       ) {
@@ -163,6 +169,9 @@ const canvas: FastifyPluginAsync = async (fastify): Promise<void> => {
             new Error(`Player doesn't have the color ${request.body.color}`)
           )
       }
+
+      timeCache.add(`draw${player.username}`)
+      timeCache.add(`${x}${y}`)
 
       const pixel = canvas.getPixel(x, y)
       const draw: Draw = fastify.canvas.draw({
