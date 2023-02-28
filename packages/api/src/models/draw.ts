@@ -80,4 +80,12 @@ export class DrawModel {
       $or: [{ owner: username }, { stolenTo: username }],
     })
   }
+
+  public async get(limit: number, offset: number) {
+    return this.repository.getSortedBy(
+      {},
+      { timestamp: 'asc' },
+      { limit, offset }
+    )
+  }
 }
